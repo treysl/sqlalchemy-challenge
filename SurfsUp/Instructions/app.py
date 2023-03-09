@@ -7,8 +7,9 @@ from flask import Flask, jsonify
 #################################################
 # Database Setup
 #################################################
-engine = create_engine("sqlite:///Resources/hawaii.sqlite")
-
+import os
+file_path = os.path.join("Resources/hawaii.sqlite")
+engine = create_engine(file_path)
 base = automap_base()
 base.prepare(autoload_with=engine)
 
@@ -19,7 +20,8 @@ station = base.classes.station
 # Flask Setup
 #################################################
 app = Flask(__name__)
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+file_path
+db = sqlalchemy(app)
 
 #################################################
 # Flask Routes
