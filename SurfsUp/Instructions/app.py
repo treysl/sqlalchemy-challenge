@@ -51,8 +51,8 @@ def welcome():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<start>/<end>"
+        f"/api/v1.0/start<br/>"
+        f"/api/v1.0/start-end<br/>"
     )
 
 #################################################
@@ -106,27 +106,41 @@ def tobs():
         all_tobs.append(tobs_dict)
     return jsonify(all_tobs)
 
-#Return a JSON list of the minimum temperature, 
-#the average temperature, and the max temperature for 
-#a given start or start-end range.
-@app.route("/api/v1.0/<start>")
-def start(start):
+#Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+@app.route("/api/v1.0/start")
+def Start_date(start):
     session = Session(engine)
     results = session.query(func.min(measurement.tobs), func.avg(measurement.tobs), func.max(measurement.tobs)).\
     filter(measurement.date >= start).all()
     session.close()
-    all_start = list(np.ravel(results))
-    return jsonify(all_start)
+    # Create a dictionary from the row data and append to a list of start_date_tobs
+    start_date_tobs = []
+    for min, avg, max in results:
+        start_date_tobs_dict = {}
+        start_date_tobs_dict["min_temp"] = min
+        start_date_tobs_dict["avg_temp"] = avg
+        start_date_tobs_dict["max_temp"] = max
+        start_date_tobs.append(start_date_tobs_dict) 
+    return jsonify(start_date_tobs)
 
-@app.route("/api/v1.0/<start>/<end>")
-def start_end(start, end):
+@app.route("/api/v1.0/start-end")
+def Start_end_date(start, end):
     session = Session(engine)
     results = session.query(func.min(measurement.tobs), func.avg(measurement.tobs), func.max(measurement.tobs)).\
     filter(measurement.date >= start).\
     filter(measurement.date <= end).all()
     session.close()
-    all_start_end = list(np.ravel(results))
-    return jsonify(all_start_end)
+    # Create a dictionary from the row data and append to a list of start_end_date_tobs
+    start_end_tobs = []
+    for min, avg, max in results:
+        start_end_tobs_dict = {}
+        start_end_tobs_dict["min_temp"] = min
+        start_end_tobs_dict["avg_temp"] = avg
+        start_end_tobs_dict["max_temp"] = max
+        start_end_tobs.append(start_end_tobs_dict) 
+    return jsonify(results)
 
 if __name__ == '__main__':
     app.run(debug=True)
+    
+    
