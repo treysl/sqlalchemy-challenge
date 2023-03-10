@@ -1,4 +1,6 @@
 import numpy as np
+import sqlalchemy
+import os
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
@@ -7,21 +9,35 @@ from flask import Flask, jsonify
 #################################################
 # Database Setup
 #################################################
-import os
-file_path = os.path.join("Resources/hawaii.sqlite")
+
+# file_path = os.path.join("sqlite:///Users/treylumley/Desktop/sqlalchemy-challenge/SurfsUp/Instructions/Resources/hawaii.sqlite")
+# file_path = os.path.abspath(os.getcwd())+"Resources/hawaii.sqlite"
+
+'''app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+file_path
+db = sqlalchemy(app)
+ 
 engine = create_engine(file_path)
 base = automap_base()
 base.prepare(autoload_with=engine)
+'''
 
-measurement = base.classes.measurement
-station = base.classes.station
+engine = create_engine("sqlite:///Resources/hawaii.sqlite")
+
+# reflect an existing database into a new model
+Base = automap_base()
+# reflect the tables
+Base.prepare(autoload_with=engine)
+measurement = Base.classes.measurement
+station = Base.classes.station
+
+# Create session link from Python to our database #added during office hours
+session = Session(engine)
 
 #################################################
 # Flask Setup
 #################################################
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+file_path
-db = sqlalchemy(app)
 
 #################################################
 # Flask Routes
